@@ -1,0 +1,12 @@
+{% extends  "base.html" %}
+{% block start %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-primary" role="alert">
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+</div>
+<p>Return To</p>
+<a href = "/home/">Home</a>
+{% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block start %}
+
+    <div class="container d-flex justify-content-center align-items-center vh-100">
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-primary" role="alert">
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            </div>
+        {% endfor %}
+        {% endif %}
+        <div class="card" style="width: 18rem; margin-top: 10vh;">
+            <div class="card-body">
+                <h5 class="card-title text-center">Profile</h5>
+                <p class="card-text">Name: {{ user.first_name }} {{ user.last_name }}</p>
+                <p class="card-text">Username: {{user.username }}</p>
+                <br>
+                <p class="card-text">Email Address : {{user.email}}</p>
+                <br>
+            </div>
+        </div>
+    </div>
+    <div>
+        <h2 class="mt-3">Joined Groups</h2>
+        <br>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Group Name</th>
+                    <th>Member Count</th>
+                    <th>Time</th>
+                    <th>Date</th>
+                    <th>Seats</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+        {% if leaderset %}
+        {% for item in leaderset %}
+        <tr>
+            <td>{{ item.group.name }}</td>
+                <td>{{ item.group.leader.first_name }}</td>
+                <td>{{ item.members_count }}</td>
+                <td>
+                    {% if item.is_member %}
+                        <p>Already A Member</p>
+                    {% elif item.group.is_closed %}
+                        <p>Unavailable</p>
+                    {% else %}
+                        <form action="{% url 'send_join_request' item.group.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn fw-bold">Send Join Request</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            <a href = "/user_delete_booking/{{booking.id}}/" class = "btn btn-danger">Delete</a>
+            </td>
+                </tr>
+        {% endfor %}
+        {% endif %}
+        {% if memberset %}
+
+    </div>
+{% endblock %}

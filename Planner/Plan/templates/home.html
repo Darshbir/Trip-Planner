@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block start %}
+
+<div class="mt-5">
+    <div class="mx-auto col-6">
+        <form method="get" action="{% url 'home' %}">
+            <div class="mb-3">
+                <label for="exampleInputEmail1" class="form-label">Name</label>
+                <input name="name" required type="text" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+        {% if queryset %}
+            <h2 class="mt-3">Search Results</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Group Name</th>
+                        <th>Group Leader</th>
+                        <th>Number Of People</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in memberset %}
+                    <tr>
+                        <td>{{ item.group.name }}</td>
+                        <td>{{ item.group.leader.first_name }}</td>
+                        <td>{{ item.members_count }}</td>
+                        <td>
+                            {% if item.is_member %}
+                                <p>Already A Member</p>
+                            {% elif item.group.is_closed %}
+                                <p>Unavailable</p>
+                            {% else %}
+                                <form action="{% url 'send_join_request' item.group.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn fw-bold">Send Join Request</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}                
+                </tbody>
+            </table>
+        {% else %}
+            {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-primary" role="alert">
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                </div>
+            {% endfor %}
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

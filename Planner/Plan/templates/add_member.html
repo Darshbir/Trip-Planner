@@ -1,0 +1,15 @@
+{% extends  "base.html" %}
+{% block start %}
+<body>
+    <h2>Add Member to Group - {{ group.name }}</h2>
+    <form method="post" action="{% url 'add_member' group_id=group.id %}">
+        {% csrf_token %}
+        <label for="member_id">Member's Username/ID:</label>
+        <input type="text" name="member_id" required>
+        <br>
+        <button type="submit">Add Member</button>
+    </form>
+    <br>
+    <a href="{% url 'group_detail' group_id=group.id %}">Back to Group Details</a>
+</body>
+{% endblock %}
