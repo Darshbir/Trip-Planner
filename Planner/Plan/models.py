@@ -40,6 +40,7 @@ class Trip(models.Model):
 class Plan(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     creator = models.ForeignKey(BITSUser, on_delete=models.CASCADE)
+    travel_cost = models.PositiveIntegerField()
     is_followed = models.BooleanField(default=False)
 
 #multiple plans can have the same events
@@ -47,7 +48,7 @@ class Event(models.Model):
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE,  related_name='events')
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     activities = models.TextField()
-    cost = models.DecimalField(max_digits=8, decimal_places=2, validators=[MinValueValidator(0)])
+    cost = models.PositiveIntegerField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     date = models.DateField() #No validator incase u hv to add ongng trip which could hv started a day or 2 ago

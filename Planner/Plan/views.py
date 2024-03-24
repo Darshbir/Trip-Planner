@@ -186,35 +186,52 @@ def create_group(request):
         group.members.add(leader) 
 
         messages.success(request, 'Group created successfully!')
-        return redirect('/create_group/')
+        return redirect('/search_members/')
 
     return render(request, 'create_group.html')
 
+@login_required
+def search_members(request, group_id):
+    group = get_object_or_404(Group, id=group_id)
 
-@login_required(login_url = "/login/")
-def add_member(request, group_id):
+    queryset = None
+    
+    if request.GET.get('email'):
+        email = request.GET.get('email')
+        queryset = User.objects.filter(email=email)
+
+    if not queryset:
+        messages.error(request, 'No users found for given email')
+
+
+    searched_user = queryset.first() if queryset else None
+
+    is_searched_user_member = False
+    if searched_user:
+        is_searched_user_member = group.members.filter(pk=searched_user.pk).exists()
+
+    memberset = [{'group': group, 'searched_user': searched_user, 'is_searched_user_member': is_searched_user_member}]
+
+    return render(request, 'search_members.html', {'memberset': memberset, 'queryset': queryset})
+
+@login_required(login_url="/login/")
+def add_member(request, group_id, user_id):
     group = get_object_or_404(Group, id=group_id)
     leader_id = request.user.id
+
     if leader_id != group.leader.id:
-        messages.error(request, f'Unathorized Access. Please login through leader email')
+        messages.error(request, f'Unauthorized Access. Please login through leader email')
         return redirect('/error/')
-        
-    if request.method == "POST":
-        
-        member_email_id = request.POST.get('member_id')
 
-        try:
-            member = User.objects.get(username=member_email_id)
-        except User.DoesNotExist:
-            messages.error(request, f'User with email {member_email_id} not found.')
-            return redirect(f'/add_member/{group_id}/')
+    try:
+        member = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, f'User with ID {user_id} not found.')
+        return redirect(f'.search_members/')
 
-        group.add_member(member)
-
-        messages.success(request, f'{member.username} added to the group!')
-        return redirect(f'/add_member/{group_id}/')
-
-    return render(request, 'add_member.html', {'group': group})
+    group.members.add(member)
+    messages.success(request, f'{member.username} added to the group!')
+    return redirect(f'/search_members/')
 
 @login_required(login_url = "/login/")
 def home_page(request):
@@ -270,7 +287,7 @@ def profile(request):
     leaderset = []
     for group in queryset:
         members_count = group.members.count()
-        leaderset.append({'group': group, 'members_count': members_count, 'is_member' : is_member})
+        leaderset.append({'group': group, 'members_count': members_count})
 
     return render(request, 'profile.html', { 'user' : this_user , 'memberset' : memberset, 'leaderset' : leaderset})
 
@@ -302,9 +319,14 @@ def group_details(request, group_id):
     group = get_object_or_404(Group, pk=group_id)
     members = group.members.all()
 
+    is_leader = False
+    if request.user == group.leader:
+        is_leader = True
+
     context = {
         'group': group,
-        'members': members
+        'members': members,
+        'is_leader' : is_leader
     }
     return render(request, 'group_details.html', context)
 
@@ -327,3 +349,4 @@ def kick_user(request, group_id, user_id):
 
     return redirect('home')
 
+# def create_event(request):

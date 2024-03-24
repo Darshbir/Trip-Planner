@@ -1,0 +1,63 @@
+{% extends  "base.html" %}
+{% block start %}
+
+<div class ="contianer">
+    <form class = "col-6 mx-auto card p-3 shadow-lg" method = "POST" enctype = "multipart/form-data">
+        <h2> Search For Members </h2> 
+        <hr>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-primary" role="alert">
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Email Address</label>
+            <input type="text" class="form-control" name ="email" id="exampleInputEmail1" aria-describedby="emailHelp">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    {% if queryset %}
+        <h2 class="mt-3">Search Results</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Email</th>[]
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in memberset %}
+                <tr>
+                    <td>{{ item.searched_user.first_name }} {{ item.searched_user.last_name }}</td>
+                    <td>{{ item.searched_user.username }}</td>
+                    <td>{{ item.searched_user.email }}</td>
+                    <td>
+                        {% if item.is_searched_user_member %}
+                            <button><a href="/add_member/{{ item.group.id }}/{{ item.searched_user.id }}/" class="btn fw-bold">Add To Group</a></button>
+                        {% else %}
+                            <p>Already A Member</p>
+                        {% endif %}
+                    </td>
+                    
+                </tr>
+            {% endfor %}                
+            </tbody>
+        </table>
+    {% else %}
+        {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-primary" role="alert">
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            </div>
+        {% endfor %}
+        {% endif %}
+    {% endif %}
+</div>
+
+{% endblock %}
